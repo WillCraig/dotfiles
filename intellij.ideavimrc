@@ -1,0 +1,412 @@
+
+" LazyVim-style IntelliJ IDEA keymap
+" Checked 2026-09-15 against IdeaVim 2.46.2 and LazyVim 16.0.1.
+" IntelliJ action IDs rechecked against IDEA 2026.3 EAP on 2026-09-21.
+" Copilot actions rechecked against GitHub Copilot 1.18.0 (261+ plugin build).
+" Reviewed 2026-09-21 for Escape, :bd, jj, and Which-Key (see REVIEW.md).
+" Primary reference: https://github.com/JetBrains/ideavim/tree/2.46.2
+" Installation, differences, and a shortcut guide are in README.md.
+"
+" IMPORTANT: <Action> and <Plug> mappings use recursive nmap/xmap/imap.
+" IdeaVim explicitly does not support <Action> with noremap.
+" Plain Vim key sequences use noremap to avoid accidental recursion.
+" Leader mappings apply in Normal mode unless explicitly added for Visual.
+
+let mapleader = " "
+let maplocalleader = "\\"
+
+" --- Editing defaults -------------------------------------------------------
+set number
+set relativenumber
+set scrolloff=4
+set sidescrolloff=8
+set nowrap
+set incsearch
+set hlsearch
+set ignorecase
+set smartcase
+set showmode
+set showcmd
+set timeout
+set timeoutlen=500
+set clipboard=unnamedplus,ideaput
+set ideajoin
+set idearefactormode=select
+
+" These extensions are bundled with IdeaVim; no Vim plugin manager is needed.
+set commentary
+set surround
+set mini-ai
+set argtextobj
+set NERDTree
+
+" --- Key ownership ----------------------------------------------------------
+" Resolve only the Ctrl shortcuts used below; keep IDE completion in Insert.
+sethandler <C-h> n:vim i:ide
+sethandler <C-j> n:vim i:ide
+sethandler <C-k> n:vim i:ide
+sethandler <C-l> n:vim i:ide
+sethandler <C-d> n-x:vim i:ide
+sethandler <C-u> n-x:vim i:ide
+sethandler <C-f> n-x:vim i:ide
+sethandler <C-b> n-x:vim i:ide
+sethandler <C-s> a:vim
+
+" --- Everyday editing -------------------------------------------------------
+nnoremap <Space> <Nop>
+xnoremap <Space> <Nop>
+" Clear Vim search matches, then let IntelliJ handle its own Escape cleanup.
+" Contextual popups/multiple carets can require a second Escape.
+nnoremap <Esc> :nohlsearch<CR><Esc>
+nnoremap <leader>ur :nohlsearch<CR><Esc>
+" Keep built-in Insert Escape behavior; press Escape again for highlight cleanup.
+inoremap jj <Esc>
+
+" Wrapped-screen movement without a count; 5j / 5k still mean real lines.
+nnoremap <expr> j v:count == 0 ? 'gj' : 'j'
+nnoremap <expr> k v:count == 0 ? 'gk' : 'k'
+xnoremap <expr> j v:count == 0 ? 'gj' : 'j'
+xnoremap <expr> k v:count == 0 ? 'gk' : 'k'
+
+" LazyVim: n always searches forward, N backward, even after a ? search.
+nnoremap <expr> n v:searchforward ? 'nzv' : 'Nzv'
+nnoremap <expr> N v:searchforward ? 'Nzv' : 'nzv'
+xnoremap <expr> n v:searchforward ? 'n' : 'N'
+xnoremap <expr> N v:searchforward ? 'N' : 'n'
+onoremap <expr> n v:searchforward ? 'n' : 'N'
+onoremap <expr> N v:searchforward ? 'N' : 'n'
+
+xnoremap < <gv
+xnoremap > >gv
+
+" Save through IDEA (saves all modified files; retains the current mode).
+nmap <C-s> <Action>(SaveAll)
+xmap <C-s> <Action>(SaveAll)
+imap <C-s> <Action>(SaveAll)
+smap <C-s> <Action>(SaveAll)
+
+" Commentary supplies gcc, gc{motion}, and Visual gc.
+" mini-ai supplies iq/aq (any quote) and ib/ab (any bracket).
+" argtextobj supplies ia/aa (argument); e.g. cia or daa.
+" Optional LazyVim mini.surround-style aliases; original ys/cs/ds also work.
+nmap gsa <Plug>YSurround
+xmap gsa <Plug>VSurround
+nmap gsd <Plug>DSurround
+nmap gsr <Plug>CSurround
+" Declare originals explicitly: custom Plug aliases suppress plugin defaults.
+nmap ys <Plug>YSurround
+nmap cs <Plug>CSurround
+nmap ds <Plug>DSurround
+xmap S <Plug>VSurround
+
+" --- Files and explorer: Space f --------------------------------------------
+nmap <leader><Space> <Action>(GotoFile)
+nmap <leader>ff <Action>(GotoFile)
+nmap <leader>, <Action>(Switcher)
+nmap <leader>fb <Action>(Switcher)
+nmap <leader>fr <Action>(RecentFiles)
+" Closest equivalent to an unnamed new buffer: choose a scratch-file language.
+nmap <leader>fn <Action>(NewScratchFile)
+nmap <leader>e <Action>(ActivateProjectToolWindow)
+nmap <leader>fe <Action>(ActivateProjectToolWindow)
+" Extra IDEA convenience: reveal the current file in the Project tree.
+nmap <leader>fP <Action>(SelectInProjectView)
+
+" --- Buffers: IDEA editor tabs ----------------------------------------------
+nnoremap H gT
+nnoremap L gt
+nnoremap [b gT
+nnoremap ]b gt
+" Alternate FILE, not the previous tab in the tab strip.
+nnoremap <leader>bb <C-^>
+nnoremap <leader>` <C-^>
+" :bd and :bdelete also work directly. This closes a tab, not a disk file.
+nnoremap <leader>bd :bdelete<CR>
+" IDEA has no separate Snacks-style delete-buffer-and-window operation.
+nnoremap <leader>bD :bdelete<CR>
+nmap <leader>bo <Action>(CloseAllEditorsButActive)
+nmap <leader>bp <Action>(PinActiveTab)
+nmap <leader>bP <Action>(CloseAllUnpinnedEditors)
+nmap <leader>bl <Action>(CloseAllToTheLeft)
+nmap <leader>br <Action>(CloseAllToTheRight)
+nmap <leader>bj <Action>(Switcher)
+
+" --- Search: Space s --------------------------------------------------------
+" IDEA remembers the Find in Files scope; select Project when appropriate.
+nmap <leader>/ <Action>(FindInPath)
+nmap <leader>sg <Action>(FindInPath)
+nmap <leader>sb <Action>(Find)
+nmap <leader>sr <Action>(ReplaceInPath)
+xmap <leader>sr <Action>(ReplaceInPath)
+nmap <leader>ss <Action>(FileStructurePopup)
+nmap <leader>sS <Action>(GotoSymbol)
+nmap <leader>sC <Action>(GotoAction)
+nnoremap <leader>sc :history :<CR>
+nnoremap <leader>: :history :<CR>
+nnoremap <leader>s/ :history /<CR>
+nnoremap <leader>s" :registers<CR>
+nnoremap <leader>sj :jumps<CR>
+nnoremap <leader>sm :marks<CR>
+nnoremap <leader>sk :nmap<CR>
+nnoremap <leader>? :nmap <Space><CR>
+
+" --- Code navigation and refactoring: Space c -------------------------------
+" IDEA combines definition/declaration navigation into GotoDeclaration.
+nmap gd <Action>(GotoDeclaration)
+nmap gD <Action>(GotoDeclaration)
+nmap gI <Action>(GotoImplementation)
+nmap gy <Action>(GotoTypeDeclaration)
+nmap gr <Action>(FindUsages)
+nmap K <Action>(ShowHoverInfo)
+nmap gK <Action>(ParameterInfo)
+nmap <leader>ca <Action>(ShowIntentionActions)
+xmap <leader>ca <Action>(ShowIntentionActions)
+nmap <leader>cr <Action>(RenameElement)
+nmap <leader>cf <Action>(ReformatCode)
+xmap <leader>cf <Action>(ReformatCode)
+nmap <leader>co <Action>(OptimizeImports)
+nmap <leader>cs <Action>(ActivateStructureToolWindow)
+nmap <leader>cd <Action>(ShowErrorDescription)
+
+" --- Diagnostics: Space x ---------------------------------------------------
+" GotoNext/PreviousError follows IDEA's configured inspection navigation order.
+nmap ]d <Action>(GotoNextError)
+nmap [d <Action>(GotoPreviousError)
+nmap <leader>xx <Action>(ActivateProblemsViewToolWindow)
+nmap <leader>sd <Action>(ActivateProblemsViewToolWindow)
+" Closest quickfix equivalent: the Find/Usages results tool window.
+nmap <leader>xq <Action>(ActivateFindToolWindow)
+
+" --- Splits and focus: Ctrl-h/j/k/l, Space w ---------------------------------
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+nmap <leader>- <Action>(SplitHorizontally)
+nmap <leader><Bar> <Action>(SplitVertically)
+" Explicit Space w aliases keep the prefix free for Which-Key hints.
+nnoremap <leader>wh <C-w>h
+nnoremap <leader>wj <C-w>j
+nnoremap <leader>wk <C-w>k
+nnoremap <leader>wl <C-w>l
+nmap <leader>ws <Action>(SplitHorizontally)
+nmap <leader>wv <Action>(SplitVertically)
+" Native close-window closes ALL tabs in the current split; bd closes one file.
+nnoremap <leader>wd <C-w>c
+nmap <leader>wm <Action>(MaximizeEditorInSplit)
+
+" --- Git: Space g -----------------------------------------------------------
+" Uses IDEA's bundled Git integration. Actions need a version-controlled file.
+nmap <leader>gg <Action>(ActivateVersionControlToolWindow)
+nmap <leader>gs <Action>(ActivateCommitToolWindow)
+nmap <leader>gl <Action>(Vcs.Show.Log)
+nmap <leader>gf <Action>(Vcs.ShowTabbedFileHistory)
+nmap <leader>gb <Action>(Annotate)
+nmap <leader>gd <Action>(Compare.SameVersion)
+nmap <leader>ghd <Action>(Compare.SameVersion)
+nmap ]h <Action>(VcsShowNextChangeMarker)
+nmap [h <Action>(VcsShowPrevChangeMarker)
+
+" --- Debug: Space d (matches LazyVim's DAP extra) ----------------------------
+" IDEA additions: dd starts selected debug config; dS selects a debug config.
+" dc resumes an existing paused session; it does not start a new session.
+nmap <leader>dd <Action>(Debug)
+nmap <leader>dS <Action>(ChooseDebugConfiguration)
+nmap <leader>dc <Action>(Resume)
+nmap <leader>db <Action>(ToggleLineBreakpoint)
+nmap <leader>dB <Action>(EditBreakpoint)
+nmap <leader>dC <Action>(RunToCursor)
+nmap <leader>di <Action>(StepInto)
+nmap <leader>do <Action>(StepOut)
+nmap <leader>dO <Action>(StepOver)
+nmap <leader>dP <Action>(Pause)
+nmap <leader>dt <Action>(Stop)
+nmap <leader>du <Action>(ActivateDebugToolWindow)
+nmap <leader>de <Action>(EvaluateExpression)
+xmap <leader>de <Action>(EvaluateExpression)
+
+" --- Run: Space r (IDEA additions) ------------------------------------------
+nmap <leader>rr <Action>(Run)
+nmap <leader>rc <Action>(RunClass)
+nmap <leader>rs <Action>(ChooseRunConfiguration)
+
+" --- Copilot: Space a (requires the GitHub Copilot plugin) -------------------
+" Matches LazyVim's AI group: aa = chat, aq = quick/inline chat.
+" Install GitHub Copilot in IDEA and sign in before using these actions.
+nmap <leader>aa <Action>(copilot.chat.show)
+xmap <leader>aa <Action>(copilot.chat.show)
+nmap <leader>aq <Action>(copilot.chat.inline)
+xmap <leader>aq <Action>(copilot.chat.inline)
+nmap <leader>as <Action>(copilot.openStatus)
+nmap <leader>aS <Action>(copilot.settings)
+
+" Insert mode: press Ctrl-g, release, then the letter (a/w/l/s/n/p).
+" These native IDEA actions control the current inline completion provider.
+" Copilot 1.17.0 uses this API; another active provider may also respond.
+" Accept actions require a visible suggestion; trigger with Ctrl-g s first.
+sethandler <C-g> i:vim
+imap <C-g>a <Action>(InsertInlineCompletionAction)
+imap <C-g>w <Action>(InsertInlineCompletionWordAction)
+imap <C-g>l <Action>(InsertInlineCompletionLineAction)
+imap <C-g>s <Action>(CallInlineCompletionAction)
+imap <C-g>n <Action>(NextInlineCompletionSuggestionAction)
+imap <C-g>p <Action>(PrevInlineCompletionSuggestionAction)
+" Tab/Esc keep their contextual completion, snippet, and Vim behavior.
+
+" --- Terminal and display ---------------------------------------------------
+" With focus in the terminal, use IDEA's terminal shortcut to return to editor.
+nmap <leader>ft <Action>(ActivateTerminalToolWindow)
+nnoremap <leader>ul :set number!<CR>
+nnoremap <leader>uL :set relativenumber!<CR>
+nnoremap <leader>uw :set wrap!<CR>
+nmap <leader>uz <Action>(ToggleZenMode)
+nmap <leader>uZ <Action>(MaximizeEditorInSplit)
+
+" --- Optional: move lines with Alt-j / Alt-k ---------------------------------
+" Uncomment if your keyboard sends these keys correctly (Option on macOS).
+" nmap <A-j> <Action>(MoveLineDown)
+" nmap <A-k> <Action>(MoveLineUp)
+" xmap <A-j> <Action>(MoveLineDown)
+" xmap <A-k> <Action>(MoveLineUp)
+" imap <A-j> <Action>(MoveLineDown)
+" imap <A-k> <Action>(MoveLineUp)
+
+" --- Optional: two-character jump -------------------------------------------
+" IdeaVim's bundled Sneak is an approximation of Flash, with no Flash labels.
+" Uncomment to use s{char}{char} forward and S{char}{char} backward.
+" set sneak
+
+" --- Which-Key popup --------------------------------------------------------
+" Auto-enable when installed. Set this flag to 0 to turn the popup off.
+" Missing Which-Key is handled; IdeaVim alone can still load this file.
+" Do not use exists('&which-key'): IdeaVim misparses the hyphenated option.
+" Readme: https://github.com/TheBlob42/idea-which-key
+let g:lazyvim_which_key = 1
+try
+  if g:lazyvim_which_key
+    set which-key
+  else
+    set nowhich-key
+  endif
+catch /E518/
+  let g:lazyvim_which_key = 0
+endtry
+
+" Reset our event handlers on reload so they never accumulate.
+augroup LazyVimMappingTimeout
+  autocmd!
+augroup END
+if g:lazyvim_which_key
+  " Normal/Visual prefixes wait for a choice or Escape; jj waits at most 500ms.
+  " IdeaVim has one mapping timeout, so switch it only while typing in Insert.
+  set notimeout
+  augroup LazyVimMappingTimeout
+    autocmd InsertEnter * set timeout
+    autocmd InsertLeave * set notimeout
+  augroup END
+  let g:WhichKey_DefaultDelay = 200
+  let g:WhichKey_ProcessUnknownMappings = "false"
+  let g:WhichKey_ShowVimActions = "false"
+  let g:WhichKey_SortOrder = "by_key_prefix_first"
+  " Hide the jj hint while typing; this does not remove the escape mapping.
+  let g:WhichKeyDesc_insert_escape = "jj"
+  let g:WhichKeyDesc_f = "<leader>f Files"
+  let g:WhichKeyDesc_b = "<leader>b Buffers"
+  let g:WhichKeyDesc_s = "<leader>s Search"
+  let g:WhichKeyDesc_c = "<leader>c Code"
+  let g:WhichKeyDesc_x = "<leader>x Diagnostics and results"
+  let g:WhichKeyDesc_w = "<leader>w Windows"
+  let g:WhichKeyDesc_g = "<leader>g Git"
+  let g:WhichKeyDesc_gh = "<leader>gh Git hunks"
+  let g:WhichKeyDesc_d = "<leader>d Debug"
+  let g:WhichKeyDesc_r = "<leader>r Run"
+  let g:WhichKeyDesc_a = "<leader>a Copilot"
+  let g:WhichKeyDesc_u = "<leader>u Display"
+  let g:WhichKeyDesc_files = "<leader><Space> Find file"
+  let g:WhichKeyDesc_buffers = "<leader>, Open-file switcher"
+  let g:WhichKeyDesc_grep = "<leader>/ Find in files"
+  let g:WhichKeyDesc_e = "<leader>e Project explorer"
+  let g:WhichKeyDesc_ff = "<leader>ff Find file"
+  let g:WhichKeyDesc_fb = "<leader>fb Open-file switcher"
+  let g:WhichKeyDesc_fr = "<leader>fr Recent files"
+  let g:WhichKeyDesc_fn = "<leader>fn New scratch file"
+  let g:WhichKeyDesc_fe = "<leader>fe Project explorer"
+  let g:WhichKeyDesc_fP = "<leader>fP Reveal current file"
+  let g:WhichKeyDesc_ft = "<leader>ft Terminal"
+  let g:WhichKeyDesc_bb = "<leader>bb Alternate file"
+  let g:WhichKeyDesc_alternate = "<leader>` Alternate file"
+  let g:WhichKeyDesc_bd = "<leader>bd Close file"
+  let g:WhichKeyDesc_bD = "<leader>bD Close file (bd alias)"
+  let g:WhichKeyDesc_bo = "<leader>bo Close other eligible tabs"
+  let g:WhichKeyDesc_bp = "<leader>bp Pin or unpin tab"
+  let g:WhichKeyDesc_bP = "<leader>bP Close unpinned tabs"
+  let g:WhichKeyDesc_bl = "<leader>bl Close unpinned tabs to the left"
+  let g:WhichKeyDesc_br = "<leader>br Close unpinned tabs to the right"
+  let g:WhichKeyDesc_bj = "<leader>bj Open-file switcher"
+  let g:WhichKeyDesc_sg = "<leader>sg Find in files"
+  let g:WhichKeyDesc_sb = "<leader>sb Find in current file"
+  let g:WhichKeyDesc_sr = "<leader>sr Replace in files"
+  let g:WhichKeyDesc_ss = "<leader>ss File symbols"
+  let g:WhichKeyDesc_sS = "<leader>sS Project symbols"
+  let g:WhichKeyDesc_sC = "<leader>sC Find IDE action"
+  let g:WhichKeyDesc_sk = "<leader>sk List Normal-mode mappings"
+  let g:WhichKeyDesc_sc = "<leader>sc Command history"
+  let g:WhichKeyDesc_commands = "<leader>: Command history"
+  let g:WhichKeyDesc_searches = "<leader>s/ Search history"
+  let g:WhichKeyDesc_registers = '<leader>s" Registers'
+  let g:WhichKeyDesc_sj = "<leader>sj Jump list"
+  let g:WhichKeyDesc_sm = "<leader>sm Marks"
+  let g:WhichKeyDesc_help = "<leader>? Leader mappings"
+  let g:WhichKeyDesc_sd = "<leader>sd Problems panel"
+  let g:WhichKeyDesc_ca = "<leader>ca Code actions"
+  let g:WhichKeyDesc_cr = "<leader>cr Rename symbol"
+  let g:WhichKeyDesc_cf = "<leader>cf Format"
+  let g:WhichKeyDesc_co = "<leader>co Optimize imports"
+  let g:WhichKeyDesc_cs = "<leader>cs Structure panel"
+  let g:WhichKeyDesc_cd = "<leader>cd Diagnostic details"
+  let g:WhichKeyDesc_xx = "<leader>xx Problems panel"
+  let g:WhichKeyDesc_xq = "<leader>xq Find and usages results"
+  let g:WhichKeyDesc_split_down = "<leader>- Split below"
+  let g:WhichKeyDesc_split_right = "<leader><Bar> Split right"
+  let g:WhichKeyDesc_wh = "<leader>wh Left split"
+  let g:WhichKeyDesc_wj = "<leader>wj Lower split"
+  let g:WhichKeyDesc_wk = "<leader>wk Upper split"
+  let g:WhichKeyDesc_wl = "<leader>wl Right split"
+  let g:WhichKeyDesc_ws = "<leader>ws Split below"
+  let g:WhichKeyDesc_wv = "<leader>wv Split right"
+  let g:WhichKeyDesc_wd = "<leader>wd Close all tabs in current split"
+  let g:WhichKeyDesc_wm = "<leader>wm Maximize or restore split"
+  let g:WhichKeyDesc_gg = "<leader>gg Git panel"
+  let g:WhichKeyDesc_gs = "<leader>gs Changed files and commit panel"
+  let g:WhichKeyDesc_gl = "<leader>gl Git log"
+  let g:WhichKeyDesc_gf = "<leader>gf File history"
+  let g:WhichKeyDesc_gb = "<leader>gb Toggle Git annotations"
+  let g:WhichKeyDesc_gd = "<leader>gd Current file diff"
+  let g:WhichKeyDesc_ghd = "<leader>ghd Current file diff"
+  let g:WhichKeyDesc_dd = "<leader>dd Start debugger"
+  let g:WhichKeyDesc_dS = "<leader>dS Choose debug configuration"
+  let g:WhichKeyDesc_dc = "<leader>dc Resume debugger"
+  let g:WhichKeyDesc_db = "<leader>db Toggle breakpoint"
+  let g:WhichKeyDesc_dB = "<leader>dB Edit existing breakpoint"
+  let g:WhichKeyDesc_dC = "<leader>dC Run to cursor"
+  let g:WhichKeyDesc_di = "<leader>di Step into"
+  let g:WhichKeyDesc_do = "<leader>do Step out"
+  let g:WhichKeyDesc_dO = "<leader>dO Step over"
+  let g:WhichKeyDesc_dP = "<leader>dP Pause"
+  let g:WhichKeyDesc_dt = "<leader>dt Stop"
+  let g:WhichKeyDesc_du = "<leader>du Debug panel"
+  let g:WhichKeyDesc_de = "<leader>de Evaluate expression"
+  let g:WhichKeyDesc_rr = "<leader>rr Run selected configuration"
+  let g:WhichKeyDesc_rc = "<leader>rc Run current context"
+  let g:WhichKeyDesc_rs = "<leader>rs Choose run configuration"
+  let g:WhichKeyDesc_aa = "<leader>aa Toggle Copilot Chat"
+  let g:WhichKeyDesc_aq = "<leader>aq Copilot inline chat"
+  let g:WhichKeyDesc_as = "<leader>as Copilot status"
+  let g:WhichKeyDesc_aS = "<leader>aS Copilot settings"
+  let g:WhichKeyDesc_ul = "<leader>ul Toggle line numbers"
+  let g:WhichKeyDesc_uL = "<leader>uL Toggle relative numbers"
+  let g:WhichKeyDesc_uw = "<leader>uw Toggle soft wrap"
+  let g:WhichKeyDesc_ur = "<leader>ur Clear search and dismiss IDE highlights"
+  let g:WhichKeyDesc_uz = "<leader>uz Zen mode"
+  let g:WhichKeyDesc_uZ = "<leader>uZ Maximize or restore split"
+endif
