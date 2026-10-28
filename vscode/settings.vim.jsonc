@@ -1,0 +1,263 @@
+// VSCodeVim port of intellij.ideavimrc.
+// Merge these keys into the top-level object of User Settings (JSON).
+// Do not replace the whole file if it already has other settings.
+//
+// vim.vimrc.path is intentionally unused. VSCodeVim's vimrc loader only
+// accepts remap lines, so <Action>, :set, <expr>, and Which-Key cannot live
+// there. Keeping one fragment avoids a second file that would drift.
+//
+// Ctrl-h/j/k/l and the Ctrl-g inline-completion prefix are mode-specific in
+// IdeaVim. vim.handleKeys is not. Those chords are in keybindings.json.
+{
+  // --- Options (set ...) ----------------------------------------------------
+  // mapleader. maplocalleader is "\" in the IdeaVim file and is unused.
+  "vim.leader": "<space>",
+
+  // set timeout + timeoutlen=500. One timeout for every mode. IdeaVim's
+  // Which-Key block switches to notimeout outside Insert; nothing here does.
+  "vim.timeout": 500,
+
+  "vim.hlsearch": true,
+  "vim.incsearch": true,
+  "vim.ignorecase": true,
+  "vim.smartcase": true,
+  "vim.showcmd": true,
+  "vim.showmodename": true,
+
+  // clipboard=unnamedplus. The extension uses the * register. ideaput has no
+  // equivalent; pastes are editor pastes, not an IntelliJ paste pipeline.
+  "vim.useSystemClipboard": true,
+
+  // Built-in surround (ys/cs/ds and visual S). gsa/gsd/gsr are aliased below.
+  "vim.surround": true,
+
+  // gc, gcc, and gC are built in (VS Code line and block comments). No flag.
+  // ia/aa argument text objects are built in (IdeaVim argtextobj).
+  "vim.argumentObjectOpeningDelimiters": ["(", "["],
+  "vim.argumentObjectClosingDelimiters": [")", "]"],
+  "vim.argumentObjectSeparators": [","],
+
+  // mini-ai any-quote is iq/aq. Next and last quote are inq/ilq and anq/alq.
+  // Bracket last/next is per delimiter (in(, il{), not mini-ai's any-bracket ib/ab.
+  "vim.targets.enable": true,
+  "vim.targets.bracketObjects.enable": true,
+  "vim.targets.smartQuotes.enable": true,
+
+  // Sneak is commented out in the IdeaVim file. Set true for s{c}{c} / S{c}{c}.
+  // With surround on, operator-pending sneak is z/Z rather than s/S.
+  "vim.sneak": false,
+
+  // Do not also load ~/.vimrc or ~/.vscodevimrc on top of this fragment.
+  "vim.vimrc.enable": false,
+
+  // set number + set relativenumber. VS Code has one enum. "relative" shows
+  // the current line absolute and the rest relative, which is that pair.
+  "editor.lineNumbers": "relative",
+
+  // set nowrap. <leader>uw toggles it with :set wrap!
+  "editor.wordWrap": "off",
+
+  // set scrolloff=4. sidescrolloff has no editor setting.
+  "editor.cursorSurroundingLines": 4,
+
+  // sethandler. true means VSCodeVim receives the key in every mode its
+  // package.json when-clause allows. Ctrl-f and Ctrl-b already exclude Insert
+  // in the extension, which matches n-x:vim i:ide. Ctrl-d and Ctrl-u do not
+  // exclude Insert; leaving them true keeps half-page scrolling.
+  // Ctrl-h/j/k/l and Ctrl-g are false so keybindings.json can limit them by mode.
+  // Ctrl-z stays false so Ctrl+Z remains VS Code undo (the extension default).
+  "vim.useCtrlKeys": true,
+  "vim.handleKeys": {
+    "<C-d>": true,
+    "<C-u>": true,
+    "<C-f>": true,
+    "<C-b>": true,
+    "<C-h>": false,
+    "<C-j>": false,
+    "<C-k>": false,
+    "<C-l>": false,
+    "<C-s>": true,
+    "<C-g>": false,
+    "<C-z>": false
+  },
+
+  // --- Normal mode ----------------------------------------------------------
+  // Non-recursive, matching the file's nnoremap lines. <Action> maps are
+  // commands because VS Code has no <Action> token.
+  "vim.normalModeKeyBindingsNonRecursive": [
+    // <Space> is not mapped to <Nop>. It is the leader prefix.
+    // j/k are not mapped to gj/gk. VSCodeVim has no <expr> or v:count.
+    // With word wrap off, j and gj land on the same line. Counted j stays
+    // a real-line count. Uncomment only if you want screen lines always:
+    // { "before": ["j"], "after": ["g", "j"] },
+    // { "before": ["k"], "after": ["g", "k"] },
+    // n/N stay Vim's "same direction as the last search", not LazyVim's
+    // always-forward n. That needs v:searchforward.
+
+    { "before": ["<Esc>"], "commands": [":nohl"], "silent": true },
+    { "before": ["<leader>", "u", "r"], "commands": [":nohl"], "silent": true },
+
+    // SaveAll. Select mode (smap) has no VSCodeVim binding list.
+    { "before": ["<C-s>"], "commands": ["workbench.action.files.saveAll"], "silent": true },
+
+    // Surround aliases. ys/cs/ds and visual S already exist when vim.surround is true.
+    { "before": ["g", "s", "a"], "after": ["y", "s"] },
+    { "before": ["g", "s", "d"], "after": ["d", "s"] },
+    { "before": ["g", "s", "r"], "after": ["c", "s"] },
+
+    // Files. GotoFile, Switcher, RecentFiles, NewScratchFile, project view.
+    { "before": ["<leader>", "<space>"], "commands": ["workbench.action.quickOpen"], "silent": true },
+    { "before": ["<leader>", "f", "f"], "commands": ["workbench.action.quickOpen"], "silent": true },
+    { "before": ["<leader>", ","], "commands": ["workbench.action.showAllEditors"], "silent": true },
+    { "before": ["<leader>", "f", "b"], "commands": ["workbench.action.showAllEditors"], "silent": true },
+    { "before": ["<leader>", "f", "r"], "commands": ["workbench.action.openRecent"], "silent": true },
+    { "before": ["<leader>", "f", "n"], "commands": ["workbench.action.files.newUntitledFile"], "silent": true },
+    { "before": ["<leader>", "e"], "commands": ["workbench.view.explorer"], "silent": true },
+    { "before": ["<leader>", "f", "e"], "commands": ["workbench.view.explorer"], "silent": true },
+    { "before": ["<leader>", "f", "P"], "commands": ["workbench.files.action.showActiveFileInExplorer"], "silent": true },
+
+    // Editor tabs. H/L and [b/]b are previous/next editor, not Vim H/L (screen top/bottom).
+    { "before": ["H"], "commands": ["workbench.action.previousEditor"], "silent": true },
+    { "before": ["L"], "commands": ["workbench.action.nextEditor"], "silent": true },
+    { "before": ["[", "b"], "commands": ["workbench.action.previousEditor"], "silent": true },
+    { "before": ["]", "b"], "commands": ["workbench.action.nextEditor"], "silent": true },
+    { "before": ["<leader>", "b", "b"], "commands": ["workbench.action.openPreviousRecentlyUsedEditor"], "silent": true },
+    { "before": ["<leader>", "`"], "commands": ["workbench.action.openPreviousRecentlyUsedEditor"], "silent": true },
+    { "before": ["<leader>", "b", "d"], "commands": [":bdelete"], "silent": true },
+    // bD is the same close in the IdeaVim file (no separate window-delete).
+    { "before": ["<leader>", "b", "D"], "commands": [":bdelete"], "silent": true },
+    { "before": ["<leader>", "b", "o"], "commands": ["workbench.action.closeOtherEditors"], "silent": true },
+    // PinActiveTab is a toggle in IDEA. This only pins. Unpin is workbench.action.unpinEditor.
+    { "before": ["<leader>", "b", "p"], "commands": ["workbench.action.pinEditor"], "silent": true },
+    // <leader>bP CloseAllUnpinnedEditors: no VS Code command. Not bound.
+    { "before": ["<leader>", "b", "l"], "commands": ["workbench.action.closeEditorsToTheLeft"], "silent": true },
+    { "before": ["<leader>", "b", "r"], "commands": ["workbench.action.closeEditorsToTheRight"], "silent": true },
+    { "before": ["<leader>", "b", "j"], "commands": ["workbench.action.showAllEditors"], "silent": true },
+
+    // Search.
+    { "before": ["<leader>", "/"], "commands": ["workbench.action.findInFiles"], "silent": true },
+    { "before": ["<leader>", "s", "g"], "commands": ["workbench.action.findInFiles"], "silent": true },
+    { "before": ["<leader>", "s", "b"], "commands": ["actions.find"], "silent": true },
+    { "before": ["<leader>", "s", "r"], "commands": ["workbench.action.replaceInFiles"], "silent": true },
+    { "before": ["<leader>", "s", "s"], "commands": ["workbench.action.gotoSymbol"], "silent": true },
+    { "before": ["<leader>", "s", "S"], "commands": ["workbench.action.showAllSymbols"], "silent": true },
+    { "before": ["<leader>", "s", "C"], "commands": ["workbench.action.showCommands"], "silent": true },
+    // <leader>sc, <leader>:, <leader>s/ need :history. VSCodeVim does not implement it.
+    // <leader>sk and <leader>? need :nmap / Which-Key. Not bound.
+    { "before": ["<leader>", "s", "\""], "commands": [":registers"], "silent": true },
+    { "before": ["<leader>", "s", "j"], "commands": [":jumps"], "silent": true },
+    { "before": ["<leader>", "s", "m"], "commands": [":marks"], "silent": true },
+
+    // Code navigation. gd and gD are both GotoDeclaration in the IdeaVim file.
+    { "before": ["g", "d"], "commands": ["editor.action.revealDefinition"], "silent": true },
+    { "before": ["g", "D"], "commands": ["editor.action.revealDefinition"], "silent": true },
+    { "before": ["g", "I"], "commands": ["editor.action.goToImplementation"], "silent": true },
+    { "before": ["g", "y"], "commands": ["editor.action.goToTypeDefinition"], "silent": true },
+    { "before": ["g", "r"], "commands": ["editor.action.goToReferences"], "silent": true },
+    { "before": ["K"], "commands": ["editor.action.showHover"], "silent": true },
+    { "before": ["g", "K"], "commands": ["editor.action.triggerParameterHints"], "silent": true },
+    { "before": ["<leader>", "c", "a"], "commands": ["editor.action.quickFix"], "silent": true },
+    { "before": ["<leader>", "c", "r"], "commands": ["editor.action.rename"], "silent": true },
+    { "before": ["<leader>", "c", "f"], "commands": ["editor.action.formatDocument"], "silent": true },
+    { "before": ["<leader>", "c", "o"], "commands": ["editor.action.organizeImports"], "silent": true },
+    { "before": ["<leader>", "c", "s"], "commands": ["outline.focus"], "silent": true },
+    { "before": ["<leader>", "c", "d"], "commands": ["editor.action.showHover"], "silent": true },
+
+    // Diagnostics. Next/previous problem across files.
+    { "before": ["]", "d"], "commands": ["editor.action.marker.nextInFiles"], "silent": true },
+    { "before": ["[", "d"], "commands": ["editor.action.marker.prevInFiles"], "silent": true },
+    { "before": ["<leader>", "x", "x"], "commands": ["workbench.actions.view.problems"], "silent": true },
+    { "before": ["<leader>", "s", "d"], "commands": ["workbench.actions.view.problems"], "silent": true },
+    { "before": ["<leader>", "x", "q"], "commands": ["workbench.view.search"], "silent": true },
+
+    // Splits are editor groups, same as the split commands below.
+    // Ctrl-h/j/k/l themselves are keybindings.json (Normal mode only).
+    { "before": ["<leader>", "-"], "commands": ["workbench.action.splitEditorDown"], "silent": true },
+    { "before": ["<leader>", "|"], "commands": ["workbench.action.splitEditorRight"], "silent": true },
+    { "before": ["<leader>", "w", "h"], "commands": ["workbench.action.navigateLeft"], "silent": true },
+    { "before": ["<leader>", "w", "j"], "commands": ["workbench.action.navigateDown"], "silent": true },
+    { "before": ["<leader>", "w", "k"], "commands": ["workbench.action.navigateUp"], "silent": true },
+    { "before": ["<leader>", "w", "l"], "commands": ["workbench.action.navigateRight"], "silent": true },
+    { "before": ["<leader>", "w", "s"], "commands": ["workbench.action.splitEditorDown"], "silent": true },
+    { "before": ["<leader>", "w", "v"], "commands": ["workbench.action.splitEditorRight"], "silent": true },
+    // Closes the group, which closes every tab in it. <leader>bd closes one.
+    { "before": ["<leader>", "w", "d"], "commands": ["workbench.action.closeEditorsAndGroup"], "silent": true },
+    { "before": ["<leader>", "w", "m"], "commands": ["workbench.action.toggleMaximizeEditorGroup"], "silent": true },
+
+    // Git. Needs the built-in Git extension and a repository.
+    { "before": ["<leader>", "g", "g"], "commands": ["workbench.view.scm"], "silent": true },
+    { "before": ["<leader>", "g", "s"], "commands": ["workbench.scm.focus"], "silent": true },
+    { "before": ["<leader>", "g", "l"], "commands": ["workbench.scm.history.focus"], "silent": true },
+    { "before": ["<leader>", "g", "f"], "commands": ["timeline.focus"], "silent": true },
+    { "before": ["<leader>", "g", "b"], "commands": ["git.blame.toggleEditorDecoration"], "silent": true },
+    { "before": ["<leader>", "g", "d"], "commands": ["git.openChange"], "silent": true },
+    { "before": ["<leader>", "g", "h", "d"], "commands": ["git.openChange"], "silent": true },
+    { "before": ["]", "h"], "commands": ["editor.action.dirtydiff.next"], "silent": true },
+    { "before": ["[", "h"], "commands": ["editor.action.dirtydiff.previous"], "silent": true },
+
+    // Debug and run.
+    { "before": ["<leader>", "d", "d"], "commands": ["workbench.action.debug.start"], "silent": true },
+    { "before": ["<leader>", "d", "S"], "commands": ["workbench.action.debug.selectandstart"], "silent": true },
+    { "before": ["<leader>", "d", "c"], "commands": ["workbench.action.debug.continue"], "silent": true },
+    { "before": ["<leader>", "d", "b"], "commands": ["editor.debug.action.toggleBreakpoint"], "silent": true },
+    { "before": ["<leader>", "d", "B"], "commands": ["editor.debug.action.editBreakpoint"], "silent": true },
+    { "before": ["<leader>", "d", "C"], "commands": ["editor.debug.action.runToCursor"], "silent": true },
+    { "before": ["<leader>", "d", "i"], "commands": ["workbench.action.debug.stepInto"], "silent": true },
+    { "before": ["<leader>", "d", "o"], "commands": ["workbench.action.debug.stepOut"], "silent": true },
+    { "before": ["<leader>", "d", "O"], "commands": ["workbench.action.debug.stepOver"], "silent": true },
+    { "before": ["<leader>", "d", "P"], "commands": ["workbench.action.debug.pause"], "silent": true },
+    { "before": ["<leader>", "d", "t"], "commands": ["workbench.action.debug.stop"], "silent": true },
+    { "before": ["<leader>", "d", "u"], "commands": ["workbench.view.debug"], "silent": true },
+    { "before": ["<leader>", "d", "e"], "commands": ["editor.debug.action.selectionToRepl"], "silent": true },
+    { "before": ["<leader>", "r", "r"], "commands": ["workbench.action.debug.run"], "silent": true },
+    // <leader>rc RunClass: no language-agnostic command. Not bound.
+    // selectandstart starts a debug session. There is no separate run-config picker.
+    { "before": ["<leader>", "r", "s"], "commands": ["workbench.action.debug.selectandstart"], "silent": true },
+
+    // Copilot. Needs GitHub Copilot signed in. Inline Ctrl-g chords are keybindings.json.
+    { "before": ["<leader>", "a", "a"], "commands": ["workbench.action.chat.open"], "silent": true },
+    { "before": ["<leader>", "a", "q"], "commands": ["inlineChat.start"], "silent": true },
+    { "before": ["<leader>", "a", "s"], "commands": ["github.copilot.toggleStatusMenu"], "silent": true },
+    {
+      "before": ["<leader>", "a", "S"],
+      "commands": [{ "command": "workbench.action.openSettings", "args": ["@ext:GitHub.copilot"] }],
+      "silent": true
+    },
+
+    // Terminal and display.
+    { "before": ["<leader>", "f", "t"], "commands": ["workbench.action.terminal.toggleTerminal"], "silent": true },
+    // number and relativenumber both write editor.lineNumbers. See the README.
+    { "before": ["<leader>", "u", "l"], "commands": [":set number!"], "silent": true },
+    { "before": ["<leader>", "u", "L"], "commands": [":set relativenumber!"], "silent": true },
+    { "before": ["<leader>", "u", "w"], "commands": [":set wrap!"], "silent": true },
+    { "before": ["<leader>", "u", "z"], "commands": ["workbench.action.toggleZenMode"], "silent": true },
+    { "before": ["<leader>", "u", "Z"], "commands": ["workbench.action.toggleMaximizeEditorGroup"], "silent": true }
+
+    // Optional Alt-j / Alt-k, commented out in the IdeaVim file. Uncomment
+    // here and in the visual and insert arrays if the keyboard sends Alt.
+    // { "before": ["<A-j>"], "commands": ["editor.action.moveLinesDownAction"], "silent": true },
+    // { "before": ["<A-k>"], "commands": ["editor.action.moveLinesUpAction"], "silent": true },
+  ],
+
+  "vim.visualModeKeyBindingsNonRecursive": [
+    { "before": ["<"], "after": ["<", "g", "v"] },
+    { "before": [">"], "after": [">", "g", "v"] },
+    { "before": ["<C-s>"], "commands": ["workbench.action.files.saveAll"], "silent": true },
+    { "before": ["g", "s", "a"], "after": ["S"] },
+    { "before": ["<leader>", "s", "r"], "commands": ["workbench.action.replaceInFiles"], "silent": true },
+    { "before": ["<leader>", "c", "a"], "commands": ["editor.action.quickFix"], "silent": true },
+    { "before": ["<leader>", "c", "f"], "commands": ["editor.action.formatDocument"], "silent": true },
+    { "before": ["<leader>", "d", "e"], "commands": ["editor.debug.action.selectionToRepl"], "silent": true },
+    { "before": ["<leader>", "a", "a"], "commands": ["workbench.action.chat.open"], "silent": true },
+    { "before": ["<leader>", "a", "q"], "commands": ["inlineChat.start"], "silent": true }
+    // { "before": ["<A-j>"], "commands": ["editor.action.moveLinesDownAction"], "silent": true },
+    // { "before": ["<A-k>"], "commands": ["editor.action.moveLinesUpAction"], "silent": true },
+  ],
+
+  "vim.insertModeKeyBindingsNonRecursive": [
+    { "before": ["j", "j"], "after": ["<Esc>"] },
+    { "before": ["<C-s>"], "commands": ["workbench.action.files.saveAll"], "silent": true }
+    // { "before": ["<A-j>"], "commands": ["editor.action.moveLinesDownAction"], "silent": true },
+    // { "before": ["<A-k>"], "commands": ["editor.action.moveLinesUpAction"], "silent": true },
+  ]
+}
