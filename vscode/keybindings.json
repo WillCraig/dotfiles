@@ -1,0 +1,63 @@
+// Additions for the VSCodeVim port of intellij.ideavimrc.
+// Paste these objects into the existing keybindings.json array.
+// Replacing a non-empty keybindings.json drops every other shortcut.
+//
+// vim.handleKeys cannot say "Vim in Normal, VS Code in Insert" for one chord.
+// Ctrl-f and Ctrl-b already do that inside the extension. These do not.
+[
+  // sethandler <C-h/j/k/l> n:vim. Editor groups, not Vim <C-w> windows.
+  // Insert and Visual keep VS Code, including the Ctrl+K chord prefix.
+  {
+    "key": "ctrl+h",
+    "command": "workbench.action.navigateLeft",
+    "when": "editorTextFocus && vim.active && vim.mode == 'Normal'"
+  },
+  {
+    "key": "ctrl+j",
+    "command": "workbench.action.navigateDown",
+    "when": "editorTextFocus && vim.active && vim.mode == 'Normal'"
+  },
+  {
+    "key": "ctrl+k",
+    "command": "workbench.action.navigateUp",
+    "when": "editorTextFocus && vim.active && vim.mode == 'Normal'"
+  },
+  {
+    "key": "ctrl+l",
+    "command": "workbench.action.navigateRight",
+    "when": "editorTextFocus && vim.active && vim.mode == 'Normal'"
+  },
+
+  // sethandler <C-g> i:vim. Inline completion (Copilot or any other provider).
+  // vim.handleKeys "<C-g>": false leaves Go to Line on Ctrl+G outside Insert.
+  {
+    "key": "ctrl+g a",
+    "command": "editor.action.inlineSuggest.commit",
+    "when": "editorTextFocus && vim.active && vim.mode == 'Insert'"
+  },
+  {
+    "key": "ctrl+g w",
+    "command": "editor.action.inlineSuggest.acceptNextWord",
+    "when": "editorTextFocus && vim.active && vim.mode == 'Insert'"
+  },
+  {
+    "key": "ctrl+g l",
+    "command": "editor.action.inlineSuggest.acceptNextLine",
+    "when": "editorTextFocus && vim.active && vim.mode == 'Insert'"
+  },
+  {
+    "key": "ctrl+g s",
+    "command": "editor.action.inlineSuggest.trigger",
+    "when": "editorTextFocus && vim.active && vim.mode == 'Insert'"
+  },
+  {
+    "key": "ctrl+g n",
+    "command": "editor.action.inlineSuggest.showNext",
+    "when": "editorTextFocus && vim.active && vim.mode == 'Insert'"
+  },
+  {
+    "key": "ctrl+g p",
+    "command": "editor.action.inlineSuggest.showPrevious",
+    "when": "editorTextFocus && vim.active && vim.mode == 'Insert'"
+  }
+]
